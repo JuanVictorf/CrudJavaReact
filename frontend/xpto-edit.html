@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manutenção de Usuários</title>
+
+    <!-- Inclua o React e o ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@17.0.2/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+
+    <style>
+        /* Estilos para melhorar a usabilidade e o design */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            filter: brightness(90%);
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .edit-buttons button {
+            margin-right: 10px;
+        }
+
+        /* Estilos para os botões */
+        .btn-remover {
+            background-color: #ff0000; /* Cor vermelha */
+        }
+        .btn-cadastrar {
+            background-color: #007bff; /* Cor azul */
+        }
+        .btn-salvar {
+            background-color: green; /* Cor verde */
+        }
+        .btn-editar {
+            background-color: grey; /* Cor vermelha */
+        }
+        .btn-cancelar {
+            background-color: orange; /* Cor laranja */
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+</body>
+<script type="text/babel">
+
+    class XptoPageComponent extends React.Component {
+        constructor() {
+            super();
+            this.state = {
+                xptos: [],
+                novoXpto: {
+                    name: '',
+                    login: '',
+                    email: '',
+                    password: ''
+                },
+                xptoEmEdicao: null
+            };
+        }
+
+        componentDidMount() {
+            this.fetchXptos();
+        }
+
+        async fetchXptos() {
+            try {
+                const response = await fetch('http://localhost:8080/users/users');
+                if (response.ok) {
+                    const data = await response.json();
+                    this.setState({ xptos: data });
+                } else {
+                    console.error('Erro ao buscar os usuários.');
+                }
+            } catch (error) {
+                console.error('Erro ao buscar os usuários:', error);
+            }
+        }
+
+        async cadastrarXpto() {
+            try {
+                const response = await fetch('http://localhost:8080/users/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ...this.state.novoXpto
+                    }),
+                });
+                if (response.ok) {
+                    this.fetchXptos();
+                    this.setState({
+                        novoXpto: {
+                            name: '',
+                            login: '',
+                            email: '',
+                            password: ''
+                        }
+                    });
+                } else {
+                    console.error('Erro ao cadastrar o usuário.');
+                }
+            } catch (error) {
+                console.error('Erro ao cadastrar o usuário:', error);
+            }
+        }
+
+        async removerXpto(id) {
+            try {
+                const response = await fetch(`http://localhost:8080/users/${id}`, {
+                    method: 'DELETE',
+                });
+                if (response.ok) {
+                    this.fetchXptos();
+                } else {
+                    console.error('Erro ao remover o usuário.');
+                }
+            } catch (error) {
+                console.error('Erro ao remover o usuário:', error);
+            }
+        }
+
+        async editarXpto() {
+            try {
+                const response = await fetch(`http://localhost:8080/users/${this.state.xptoEmEdicao.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ...this.state.xptoEmEdicao
+                    }),
+                });
+                if (response.ok) {
+                    this.fetchXptos();
+                    this.setState({ xptoEmEdicao: null });
+                } else {
+                    console.error('Erro ao editar o usuário.');
+                }
+            } catch (error) {
+                console.error('Erro ao editar o usuário:', error);
+            }
+        }
+
+        render() {
+            return (
+                <div className="container">
+                    <h1>Manutenção de Usuários</h1>
+                    <form>
+                        <label>
+                            Nome
+                            <input
+                                type="text"
+                                value={this.state.novoXpto.name}
+                                onChange={(e) => this.setState({ novoXpto: { ...this.state.novoXpto, name: e.target.value } })}
+                            />
+                        </label>
+                        <br />
+                        <label>
+                            Login
+                            <input
+                                type="text"
+                                value={this.state.novoXpto.login}
+                                onChange={(e) => this.setState({ novoXpto: { ...this.state.novoXpto, login: e.target.value } })}
+                            />
+                        </label>
+                        <br />
+                        <label>
+                            Email
+                            <input
+                                type="text"
+                                value={this.state.novoXpto.email}
+                                onChange={(e) => this.setState({ novoXpto: { ...this.state.novoXpto, email: e.target.value } })}
+                            />
+                        </label>
+                        <br />
+                        <label>
+                            Password
+                            <input
+                                type="password"
+                                value={this.state.novoXpto.password}
+                                onChange={(e) => this.setState({ novoXpto: { ...this.state.novoXpto, password: e.target.value } })}
+                            />
+                        </label>
+                        <br />
+                        <button type="button" className="btn-cadastrar" onClick={() => this.cadastrarXpto()}>Cadastrar</button>
+                    </form>
+                    <ul>
+                        {this.state.xptos.map((xpto, index) => (
+                            <li key={index}>
+                                <strong>Name:</strong> {xpto.name}<br />
+                                <strong>Login:</strong> {xpto.login}<br />
+                                <strong>Email:</strong> {xpto.email}<br />
+                                <div className="edit-buttons">
+                                    <button className="btn-editar" onClick={() => this.setState({ xptoEmEdicao: xpto })}>Editar</button>
+                                    <button className="btn-remover" onClick={() => this.removerXpto(xpto.id)}>Remover</button>
+                                </div>
+                                {this.state.xptoEmEdicao && this.state.xptoEmEdicao.id === xpto.id && (
+                                    <form>
+                                        <label>
+                                            Novo Nome:
+                                            <input
+                                                type="text"
+                                                value={this.state.xptoEmEdicao.name}
+                                                onChange={(e) => this.setState({ xptoEmEdicao: { ...this.state.xptoEmEdicao, name: e.target.value } })}
+                                            />
+                                        </label>
+                                        <br />
+                                        <label>
+                                            Novo Login:
+                                            <input
+                                                type="text"
+                                                value={this.state.xptoEmEdicao.login}
+                                                onChange={(e) => this.setState({ xptoEmEdicao: { ...this.state.xptoEmEdicao, login: e.target.value } })}
+                                            />
+                                        </label>
+                                        <br />
+                                        <label>
+                                            Novo Email:
+                                            <input
+                                                type="text"
+                                                value={this.state.xptoEmEdicao.email}
+                                                onChange={(e) => this.setState({ xptoEmEdicao: { ...this.state.xptoEmEdicao, email: e.target.value } })}
+                                            />
+                                        </label>
+                                        <br />
+                                        <label>
+                                            Nova Password:
+                                            <input
+                                                type="password"
+                                                value={this.state.xptoEmEdicao.password}
+                                                onChange={(e) => this.setState({ xptoEmEdicao: { ...this.state.xptoEmEdicao, password: e.target.value } })}
+                                            />
+                                        </label>
+                                        <br />
+                                        <div className="edit-buttons">
+                                            <button className="btn-salvar" type="button" onClick={() => this.editarXpto()}>Salvar</button>
+                                            <button className="btn-cancelar" type="button" onClick={() => this.setState({ xptoEmEdicao: null })}>Cancelar</button>
+                                        </div>
+                                    </form>
+                                )}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            );
+        }
+    }
+
+    ReactDOM.render(<XptoPageComponent />, document.getElementById('root'));
+
+</script>
+</html>
