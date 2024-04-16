@@ -4,6 +4,8 @@ Este projeto consiste em uma API RESTful desenvolvida em Spring Boot para realiz
 
 ## Endpoints no Postman
 
+Base url: http://localhost:8080
+
 Antes da integração com o frontend, os endpoints podem ser testados utilizando o software Postman. Abaixo estão os endpoints disponíveis:
 
 - **POST /users/create:** Cria um novo usuário. O corpo da requisição deve conter os dados do usuário a ser criado.
