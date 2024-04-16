@@ -1,4 +1,4 @@
-# README do Projeto CRUD de Usuários em Java
+# Projeto CRUD de Usuários em Java
 
 Este projeto consiste em uma API RESTful desenvolvida em Spring Boot para realizar operações CRUD (Create, Read, Update, Delete) em usuários. O projeto utiliza o banco de dados H2 para armazenamento dos dados.
 
